@@ -1,0 +1,79 @@
+import os
+import glob
+from skimage import io
+import numpy as np
+import dlib
+import sys
+import argparse
+import cv2
+
+
+def arg_parser():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "-i", "--input", type=str, required=True, help="path to input image folder"
+    )
+    parser.add_argument(
+        "-p",
+        "--predictor",
+        type=str,
+        required=False,
+        help="path to predictor .dat file",
+        default="predictor/shape_predictor_68_face_landmarks.dat",
+    )
+    args = parser.parse_args()
+    return args
+
+
+def read_img(file_path):
+    img = io.imread(file_path)
+    return img
+
+
+def find_keypoints(img, detector, predictor):
+    dets = detector(img, 1)
+    if len(dets) > 0:
+        shape = predictor(img, dets[0])
+        points = np.empty([68, 2], dtype=int)
+        for b in range(68):
+            points[b, 0] = shape.part(b).x
+            points[b, 1] = shape.part(b).y
+        return points
+    else:
+        return [0]
+
+
+def proc_img(img_path, detector, predictor):
+    # mask everything outside of left eyebrow, right eyebrow, face
+
+    current_img = read_img(img_path)
+    keypoints = find_keypoints(current_img, detector, predictor)
+
+    face = keypoints[0:17]
+    eyebrows = keypoints[17:27]
+    eyebrows = eyebrows[::-1]  # Invert coords due to DLIB ordering
+    face_eyebrows = np.insert(face, 0, eyebrows, axis=0)
+
+    # Mask the face
+    mask = np.array([face_eyebrows])
+    image2 = np.zeros(current_img.shape)
+    cv2.fillPoly(image2, [mask], 255)
+    maskimage2 = cv2.inRange(image2, 1, 255)
+
+    # Create new image masking only the face
+    out = cv2.bitwise_and(current_img, current_img, mask=maskimage2)
+    # TODO: Improve this string handling. This works but should be better
+    out_path = img_path.replace(img_path[-4:], "_masked" + img_path[-4:])
+
+    cv2.imwrite(out_path, out[:, :, ::-1])
+
+
+if __name__ == "__main__":
+    args = arg_parser()
+    print("Folder to operate: {}".format(args.input))
+
+    predictor = dlib.shape_predictor(os.path.abspath(args.predictor))
+    detector = dlib.get_frontal_face_detector()
+    img_path = args.input
+    # TODO: read entire folder, not single files
+    proc_img(img_path, detector, predictor)
