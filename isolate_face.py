@@ -50,12 +50,19 @@ def proc_img(img_path, detector, predictor):
     keypoints = find_keypoints(current_img, detector, predictor)
 
     face = keypoints[0:17]
-    eyebrows = keypoints[17:27]
-    eyebrows = eyebrows[::-1]  # Invert coords due to DLIB ordering
-    face_eyebrows = np.insert(face, 0, eyebrows, axis=0)
+    #eyebrows = keypoints[17:27]
+    #eyebrows = eyebrows[::-1]  # Invert coords due to DLIB ordering
+    #face_eyebrows = np.insert(face, 0, eyebrows, axis=0)
+
+    # Get upper points from mirrorring (adapted from Vid2Vid)
+    pts = keypoints[:17, :].astype(np.int32)
+    baseline_y = (pts[0, 1] + pts[-1, 1]) / 2
+    upper_pts = pts[1:-1, :].copy()
+    upper_pts[:, 1] = baseline_y + (baseline_y - upper_pts[:, 1]) * 2 // 3
+    head = np.insert(face, 0, upper_pts[::-1], axis=0)
 
     # Mask the face
-    mask = np.array([face_eyebrows])
+    mask = np.array([head])
     image2 = np.zeros(current_img.shape)
     cv2.fillPoly(image2, [mask], 255)
     maskimage2 = cv2.inRange(image2, 1, 255)
