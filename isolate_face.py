@@ -70,9 +70,11 @@ def proc_img(img_path, detector, predictor):
     # Create new image masking only the face
     out = cv2.bitwise_and(current_img, current_img, mask=maskimage2)
     # TODO: Improve this string handling. This works but should be better
-    out_path = img_path.replace(img_path[-4:], "_masked" + img_path[-4:])
+    #out_path = img_path.replace(img_path[-4:], "_masked" + img_path[-4:])
+    out_path = img_path
 
     cv2.imwrite(out_path, out[:, :, ::-1])
+    np.savetxt(out_path.replace(out_path[-3:],"txt"), keypoints, delimiter=",", fmt="%05d")
 
 
 if __name__ == "__main__":
