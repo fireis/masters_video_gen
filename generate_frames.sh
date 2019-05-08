@@ -1,0 +1,1 @@
+ffmpeg -i Em20_Fala1_Neutra_SheilaFaermann.mp4 Em20_Fala1_Neutra_SheilaFaermann_%05d.jpg

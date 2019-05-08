@@ -1,0 +1,29 @@
+TODO
+-- gerar img teste para cada um dos checkpoints: 
+	edge2face_512  
+	python test.py --name edge2face_512 --dataroot datasets/face/ --dataset_mode face --input_nc 15 --loadSize 512 --use_real_img
+
+	edge2face_512_corr  
+python test.py --name edge2face_512_corr --dataroot datasets/face/ --dataset_mode face --input_nc 15 --loadSize 512 --use_single_G
+
+	edge2face_512_em1  
+	python test.py --name edge2face_512_em1 --dataroot datasets/face/ --dataset_mode face --input_nc 15 --loadSize 512 --use_single_G
+
+	edge2face_512_em15
+	python test.py --name edge2face_512_em15 --dataroot datasets/face/ --dataset_mode face --input_nc 15 --loadSize 512 --use_single_G
+
+-- gerar video para cada um das tentativas
+ffmpeg -start_number 2 -framerate 24 -i fake_B_%05d.jpg -vcodec mpeg4 test.mp4
+-- fazer 1 video comparando original + tentativas com som original
+ffmpeg -start_number 2 -framerate 29.97 -i fake_B_%05d.jpg -vcodec mpeg4 neut_red.mp4
+
+POS REUNI
+-- fazer testes com videos dos outros atores
+	gerar frames: 
+		ffmpeg -i video.webm du%04d.jpg 
+
+-- fazer teste treinando com mais épocas 
+-- pensar nas propostas de projetos
+-- pensar em transfer learning
+
+

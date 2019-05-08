@@ -64,7 +64,7 @@ if __name__ == "__main__":
 
     for img_path in glob.glob(args.input + "*/*/*.jpg"):
         print("current file:{0}".format(img_path))
-        keypoints_path = img_path.replace("train_img", "train_keypoints").replace(
+        keypoints_path = img_path.replace("test_img_crop", "test_keypoints").replace(
             ".jpg", ".txt"
         )
         img = read_img(img_path)
