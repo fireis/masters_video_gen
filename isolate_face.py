@@ -81,14 +81,17 @@ def proc_img(img_path, detector, predictor):
     np.savetxt(out_path.replace(out_path[-3:],"txt"), keypoints, delimiter=",", fmt="%05d")
 
 def get_keypoints(img_path, detector, predictor):
-    current_img = read_img(img_path)    
-    keypoints = find_keypoints(current_img, detector, predictor)
     txt_path = os.path.dirname(img_path) 
     vid_number = txt_path[-5:] + "/"
     txt_path = os.path.dirname(os.path.dirname(txt_path)) + "/train_keypoints/" + vid_number
     txt_path = txt_path + img_path.replace(img_path[-3:],"txt")[-9:]
-    print("Saving: {}".format(txt_path))
-    np.savetxt(txt_path, keypoints, delimiter=",", fmt="%05d")
+    if not os.path.isfile(txt_path):
+        current_img = read_img(img_path)    
+        keypoints = find_keypoints(current_img, detector, predictor)
+        np.savetxt(txt_path, keypoints, delimiter=",", fmt="%05d")
+    
+    #print("Saving: {}".format(txt_path))
+    
 
 if __name__ == "__main__":
     args = arg_parser()
@@ -102,8 +105,8 @@ if __name__ == "__main__":
     if args.mode == "kp":
         for img in imgs:
             get_keypoints(img, detector, predictor)        
-            print("Processed: {}% of the files".format(proc/total_imgs*100))
+            print("Processed: {}% of the files".format(proc/total_imgs*100), flush=True)
             proc += 1
-    
+
     # TODO: read entire folder, not single files
     
